@@ -1,7 +1,7 @@
 package io.qbeat.lru;
 
 public class DoubleLinkedList<T> {
-    int size = 0;
+    private int size = 0;
     private DoubleLinkedListNode<Element> head = null;
     private DoubleLinkedListNode<Element> tail = null;
 
@@ -11,20 +11,30 @@ public class DoubleLinkedList<T> {
             head = node;
             tail = node;
         } else {
-            head.previous = node;
-            node.next = head;
+            head.setPrevious(node);
+            node.setNext(head);
             head = node;
         }
         size++;
         return node;
     }
 
-    void moveToBeginning(DoubleLinkedListNode<Element> node) {
-        node.previous.next = node.next;
-        node.next.previous = node.previous;
-        node.next = head;
-        node.previous = null;
+    void moveToTheTop(DoubleLinkedListNode<Element> node) {
+        if (node == head){
+            return;
+        }
 
+        if (node.getPrevious() != null){
+            node.getPrevious().setNext(node.getNext());
+        }
+
+        if (node.getNext() != null){
+            node.getNext().setPrevious(node.getPrevious());
+        }
+
+        node.setPrevious(null);
+        head.setPrevious(node);
+        node.setNext(head);
         head = node;
     }
 
@@ -34,8 +44,8 @@ public class DoubleLinkedList<T> {
             head = node;
             tail = node;
         } else {
-            tail.next = node;
-            node.previous = tail;
+            tail.setNext(node);
+            node.setPrevious(tail);
             tail = node;
         }
         size++;
@@ -46,26 +56,26 @@ public class DoubleLinkedList<T> {
             head = null;
             tail = null;
             size--;
-            return node.element;
+            return node.getElement();
         }
 
         if (node == tail) {
-            tail = node.previous;
+            tail = node.getPrevious();
         }
 
         if (node == head) {
-            head = node.next;
+            head = node.getNext();
         }
 
-        if (node.previous != null) {
-            node.previous.next = node.next;
+        if (node.getPrevious() != null) {
+            node.getPrevious().setNext(node.getNext());
         }
 
-        if (node.next != null) {
-            node.next.previous = node.previous;
+        if (node.getNext() != null) {
+            node.getNext().setPrevious(node.getPrevious());
         }
         size--;
-        return node.element;
+        return node.getElement();
     }
 
 
@@ -83,8 +93,8 @@ public class DoubleLinkedList<T> {
         sb.append("Elements: ");
         DoubleLinkedListNode<Element> currentNode = head;
         while (currentNode != null) {
-            sb.append(currentNode.element.toString());
-            currentNode = currentNode.next;
+            sb.append(currentNode.toString());
+            currentNode = currentNode.getNext();
         }
         return sb.toString();
     }

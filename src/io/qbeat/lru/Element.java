@@ -17,6 +17,10 @@ public class Element {
         return value;
     }
 
+    public void updateValue(int value){
+        this.value = value;
+    }
+
     @Override
     public String toString() {
         return "{" + key + "," + value + "}";

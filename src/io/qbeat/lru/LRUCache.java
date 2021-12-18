@@ -6,14 +6,25 @@ public class LRUCache {
 
     private int capacity;
 
+    /**
+     * An implementation of the Last Recently Used (LRU) Cache
+     * Both Set and Get methods require a constant time
+     * Does not support concurrency, priorities or expiry date.
+     *
+     * @param capacity The capacity the Cache should have
+     */
     public LRUCache(int capacity) {
         this.capacity = capacity;
     }
 
+    // We need this, in order to be able to find an element in our cache in constant O(1) time
     private HashMap<String, DoubleLinkedListNode<Element>> hashmapWithNodes = new HashMap<>();
-    private DoubleLinkedList<DoubleLinkedListNode<Element>>  orderedCache = new DoubleLinkedList<>();
+    // We need this, for the ordering of our list. The DoubleLinkedList is the perfect structure since we could:
+    // Add an element on the top or tail in constant time.
+    // Move an element to the top of the list, given that we have the node, again in constant time
+    private DoubleLinkedList<DoubleLinkedListNode<Element>> orderedCache = new DoubleLinkedList<>();
 
-    // O(1)
+    // Time complexity: O(1)
     public Integer get(String key) {
         DoubleLinkedListNode<Element> value;
         // O(1)
@@ -24,19 +35,29 @@ public class LRUCache {
         }
 
         // O(1)
-        orderedCache.moveToBeginning(value);
+        orderedCache.moveToTheTop(value);
 
-        return value.element.getValue();
+        return value.getElement().getValue();
     }
 
-    // O(1)
+    // Time complexity: O(1)
     public void set(String key, Integer value) {
-        if (size() == capacity) {
-            // Drop element to make capacity
-            removeLast();
+        if (hashmapWithNodes.containsKey(key)) {
+            moveToTheTop(key, value);
+        } else {
+            if (size() == capacity) {
+                // Drop element to make capacity
+                removeLast();
+            }
+            insertToTheTop(key, value);
         }
+    }
 
-        insertFirst(key, value);
+    private void moveToTheTop(String key, Integer value) {
+        DoubleLinkedListNode<Element> elementDoubleLinkedListNode = hashmapWithNodes.get(key);
+        elementDoubleLinkedListNode.getElement().updateValue(value);
+        orderedCache.moveToTheTop(elementDoubleLinkedListNode);
+        hashmapWithNodes.put(key, elementDoubleLinkedListNode);
     }
 
     public int size() {
@@ -48,7 +69,7 @@ public class LRUCache {
         hashmapWithNodes.remove(element.getKey());
     }
 
-    private void insertFirst(String key, Integer value) {
+    private void insertToTheTop(String key, Integer value) {
         DoubleLinkedListNode<Element> node = orderedCache.putFirst(new Element(key, value));
         hashmapWithNodes.put(key, node);
     }
@@ -71,9 +92,13 @@ public class LRUCache {
         System.out.println(lruCache);
         lruCache.set("E", 1);
         System.out.println(lruCache);
+        // We expect C to be moved to the top of the cache, since we have requested it.
         lruCache.get("C");
         System.out.println(lruCache);
+        // We expect the last used element (A) to be removed here.
         lruCache.set("F", 4);
+        System.out.println(lruCache);
+        lruCache.set("E", 2);
         System.out.println(lruCache);
 
     }
