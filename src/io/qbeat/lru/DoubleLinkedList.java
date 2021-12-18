@@ -2,11 +2,11 @@ package io.qbeat.lru;
 
 public class DoubleLinkedList<T> {
     private int size = 0;
-    private DoubleLinkedListNode<Element> head = null;
-    private DoubleLinkedListNode<Element> tail = null;
+    private DoubleLinkedListNode<T> head = null;
+    private DoubleLinkedListNode<T> tail = null;
 
-    DoubleLinkedListNode<Element> putFirst(Element value) {
-        DoubleLinkedListNode<Element> node = new DoubleLinkedListNode<>(value);
+    DoubleLinkedListNode<T> putFirst(T value) {
+        DoubleLinkedListNode<T> node = new DoubleLinkedListNode<>(value);
         if (head == null) {
             head = node;
             tail = node;
@@ -19,7 +19,7 @@ public class DoubleLinkedList<T> {
         return node;
     }
 
-    void moveToTheTop(DoubleLinkedListNode<Element> node) {
+    void moveToTheTop(DoubleLinkedListNode<T> node) {
         if (node == head){
             return;
         }
@@ -38,8 +38,8 @@ public class DoubleLinkedList<T> {
         head = node;
     }
 
-    public void putLast(Element value) {
-        DoubleLinkedListNode<Element> node = new DoubleLinkedListNode<>(value);
+    public void putLast(T value) {
+        DoubleLinkedListNode<T> node = new DoubleLinkedListNode<>(value);
         if (head == null) {
             head = node;
             tail = node;
@@ -51,7 +51,7 @@ public class DoubleLinkedList<T> {
         size++;
     }
 
-    private Element remove(DoubleLinkedListNode<Element> node) {
+    private T remove(DoubleLinkedListNode<T> node) {
         if (size == 1) {
             head = null;
             tail = null;
@@ -79,7 +79,7 @@ public class DoubleLinkedList<T> {
     }
 
 
-    Element removeLast() {
+    T removeLast() {
         // O(1)
         return remove(tail);
     }
@@ -91,7 +91,7 @@ public class DoubleLinkedList<T> {
         }
         StringBuilder sb = new StringBuilder();
         sb.append("Elements: ");
-        DoubleLinkedListNode<Element> currentNode = head;
+        DoubleLinkedListNode<T> currentNode = head;
         while (currentNode != null) {
             sb.append(currentNode.toString());
             currentNode = currentNode.getNext();

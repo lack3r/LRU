@@ -22,22 +22,22 @@ public class LRUCache {
     // We need this, for the ordering of our list. The DoubleLinkedList is the perfect structure since we could:
     // Add an element on the top or tail in constant time.
     // Move an element to the top of the list, given that we have the node, again in constant time
-    private DoubleLinkedList<DoubleLinkedListNode<Element>> orderedCache = new DoubleLinkedList<>();
+    private DoubleLinkedList<Element> orderedCache = new DoubleLinkedList<>();
 
     // Time complexity: O(1)
     public Integer get(String key) {
-        DoubleLinkedListNode<Element> value;
+        DoubleLinkedListNode<Element> node;
         // O(1)
         if (hashmapWithNodes.containsKey(key)) {
-            value = hashmapWithNodes.get(key);
+            node = hashmapWithNodes.get(key);
         } else {
             return null;
         }
 
         // O(1)
-        orderedCache.moveToTheTop(value);
+        orderedCache.moveToTheTop(node);
 
-        return value.getElement().getValue();
+        return node.getElement().getValue();
     }
 
     // Time complexity: O(1)
@@ -100,6 +100,5 @@ public class LRUCache {
         System.out.println(lruCache);
         lruCache.set("E", 2);
         System.out.println(lruCache);
-
     }
 }

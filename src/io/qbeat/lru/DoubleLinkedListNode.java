@@ -3,19 +3,19 @@ package io.qbeat.lru;
 public class DoubleLinkedListNode<T> {
 
 
-    private Element element;
+    private T element;
     private DoubleLinkedListNode<T> next = null;
     private DoubleLinkedListNode<T> previous = null;
 
-    DoubleLinkedListNode(Element element) {
+    DoubleLinkedListNode(T element) {
         this.element = element;
     }
 
-    public Element getElement() {
+    public T getElement() {
         return element;
     }
 
-    public void setElement(Element element) {
+    public void setElement(T element) {
         this.element = element;
     }
 
@@ -37,6 +37,6 @@ public class DoubleLinkedListNode<T> {
 
     @Override
     public String toString() {
-        return "{" + element.getKey() + "," + element.getValue() + "}";
+        return element.toString();
     }
 }
