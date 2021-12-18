@@ -38,6 +38,10 @@ public class DoubleLinkedList<T> {
         head = node;
     }
 
+    public boolean isEmpty(){
+        return size == 0;
+    }
+
     public void putLast(T value) {
         DoubleLinkedListNode<T> node = new DoubleLinkedListNode<>(value);
         if (head == null) {
@@ -51,7 +55,7 @@ public class DoubleLinkedList<T> {
         size++;
     }
 
-    private T remove(DoubleLinkedListNode<T> node) {
+    public T remove(DoubleLinkedListNode<T> node) {
         if (size == 1) {
             head = null;
             tail = null;
