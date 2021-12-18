@@ -1,6 +1,7 @@
 package io.qbeat.lru;
 
 import java.util.HashMap;
+import java.util.Optional;
 
 public class LRUCache {
 
@@ -25,23 +26,23 @@ public class LRUCache {
     private DoubleLinkedList<Element> orderedCache = new DoubleLinkedList<>();
 
     // Time complexity: O(1)
-    public Integer get(String key) {
+    public Optional<Integer> get(String key) {
         DoubleLinkedListNode<Element> node;
         // O(1)
         if (hashmapWithNodes.containsKey(key)) {
             node = hashmapWithNodes.get(key);
         } else {
-            return null;
+            return Optional.empty();
         }
 
         // O(1)
         orderedCache.moveToTheTop(node);
 
-        return node.getElement().getValue();
+        return Optional.of(node.getElement().getValue());
     }
 
     // Time complexity: O(1)
-    public void set(String key, Integer value) {
+    public void set(String key, int value) {
         if (hashmapWithNodes.containsKey(key)) {
             moveToTheTop(key, value);
         } else {
@@ -53,7 +54,7 @@ public class LRUCache {
         }
     }
 
-    private void moveToTheTop(String key, Integer value) {
+    private void moveToTheTop(String key, int value) {
         DoubleLinkedListNode<Element> elementDoubleLinkedListNode = hashmapWithNodes.get(key);
         elementDoubleLinkedListNode.getElement().updateValue(value);
         orderedCache.moveToTheTop(elementDoubleLinkedListNode);
@@ -69,7 +70,7 @@ public class LRUCache {
         hashmapWithNodes.remove(element.getKey());
     }
 
-    private void insertToTheTop(String key, Integer value) {
+    private void insertToTheTop(String key, int value) {
         DoubleLinkedListNode<Element> node = orderedCache.putFirst(new Element(key, value));
         hashmapWithNodes.put(key, node);
     }
