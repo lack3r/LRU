@@ -20,15 +20,15 @@ public class DoubleLinkedList<T> {
     }
 
     void moveToTheTop(DoubleLinkedListNode<T> node) {
-        if (node == head){
+        if (node == head) {
             return;
         }
 
-        if (node.getPrevious() != null){
+        if (node.getPrevious() != null) {
             node.getPrevious().setNext(node.getNext());
         }
 
-        if (node.getNext() != null){
+        if (node.getNext() != null) {
             node.getNext().setPrevious(node.getPrevious());
         }
 
@@ -38,7 +38,7 @@ public class DoubleLinkedList<T> {
         head = node;
     }
 
-    public boolean isEmpty(){
+    public boolean isEmpty() {
         return size == 0;
     }
 
