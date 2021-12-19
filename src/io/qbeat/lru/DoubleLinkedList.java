@@ -32,6 +32,10 @@ public class DoubleLinkedList<T> {
             node.getNext().setPrevious(node.getPrevious());
         }
 
+        if (node == tail && tail.getPrevious()!=null){
+            tail = tail.getPrevious();
+        }
+
         node.setPrevious(null);
         head.setPrevious(node);
         node.setNext(head);
@@ -42,7 +46,7 @@ public class DoubleLinkedList<T> {
         return size == 0;
     }
 
-    public void putLast(T value) {
+    public DoubleLinkedListNode<T> putLast(T value) {
         DoubleLinkedListNode<T> node = new DoubleLinkedListNode<>(value);
         if (head == null) {
             head = node;
@@ -53,6 +57,7 @@ public class DoubleLinkedList<T> {
             tail = node;
         }
         size++;
+        return node;
     }
 
     public T remove(DoubleLinkedListNode<T> node) {
