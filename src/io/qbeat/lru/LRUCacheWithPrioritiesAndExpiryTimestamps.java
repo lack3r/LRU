@@ -4,7 +4,7 @@ import java.util.HashMap;
 
 public class LRUCacheWithPrioritiesAndExpiryTimestamps {
     private final int capacity;
-    private LRUTime lruTime;
+    private final LRUTime lruTime;
 
     /**
      * An implementation of the Last Recently Used (LRU) Cache
@@ -123,7 +123,7 @@ public class LRUCacheWithPrioritiesAndExpiryTimestamps {
         }
 
         final Long lowestExpiryTimestamp = expiryTimestampsCache.firstKey();
-        if (lowestExpiryTimestamp < lruTime.getCurrentTimetoEpochMillis() ){
+        if (lowestExpiryTimestamp < lruTime.getCurrentTimeToEpochMillis() ){
             removeExpiredItem(lowestExpiryTimestamp);
             return true;
         }

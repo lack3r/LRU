@@ -3,7 +3,7 @@ package io.qbeat.lru;
 public class DoubleLinkedListNode<T> {
 
 
-    private T element;
+    private final T element;
     private DoubleLinkedListNode<T> next = null;
     private DoubleLinkedListNode<T> previous = null;
 

@@ -4,6 +4,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 class LRUCacheWithPrioritiesAndExpiryTimestampsTest {
 
@@ -39,7 +40,7 @@ class LRUCacheWithPrioritiesAndExpiryTimestampsTest {
         cache.set("C", 2,1, 1000);
         cache.set("A", 10 ,0, 1000);
         cache.set("D", 10 ,2, 1000);
-        assertEquals(null, cache.get("A"));
+        assertNull(cache.get("A"));
         assertEquals(2, cache.get("B"));
         assertEquals(2, cache.get("C"));
         assertEquals(10, cache.get("D"));
@@ -56,7 +57,7 @@ class LRUCacheWithPrioritiesAndExpiryTimestampsTest {
         cache.set("A", 10 ,0, 600);
         cache.set("D", 10 ,2, 700);
         assertEquals(10, cache.get("A"));
-        assertEquals(null, cache.get("B"));
+        assertNull(cache.get("B"));
         assertEquals(2, cache.get("C"));
         assertEquals(10, cache.get("D"));
         assertEquals(3, cache.size());
@@ -66,7 +67,7 @@ class LRUCacheWithPrioritiesAndExpiryTimestampsTest {
     @Test
     public void shouldReturnNullIfElementNotInCache(){
         final Integer value = cache.get("B");
-        assertEquals(null, value);
+        assertNull(value);
         assertEquals(0, cache.size());
     }
 
@@ -85,7 +86,7 @@ class LRUCacheWithPrioritiesAndExpiryTimestampsTest {
         cache.set("B", 2,3 , 1000);
         cache.set("C", 3,3, 1000);
         cache.set("D", 8,3, 1000);
-        assertEquals(null, cache.get("A"));
+        assertNull(cache.get("A"));
         assertEquals(2, cache.get("B"));
         assertEquals(3, cache.get("C"));
         assertEquals(8, cache.get("D"));
@@ -100,7 +101,7 @@ class LRUCacheWithPrioritiesAndExpiryTimestampsTest {
         cache.get("A");
         cache.set("D", 8,3, 1000);
         assertEquals(10, cache.get("A"));
-        assertEquals(null, cache.get("B"));
+        assertNull(cache.get("B"));
         assertEquals(3, cache.get("C"));
         assertEquals(8, cache.get("D"));
         assertEquals(3, cache.size());
@@ -120,7 +121,7 @@ class LRUCacheWithPrioritiesAndExpiryTimestampsTest {
         cache = new LRUCacheWithPrioritiesAndExpiryTimestamps(1, lruTimeForTests);
         cache.set("A", 10,3, 1000);
         cache.set("B", 2,3, 1000);
-        assertEquals(null, cache.get("A"));
+        assertNull(cache.get("A"));
         assertEquals(2, cache.get("B"));
     }
 
@@ -160,7 +161,7 @@ class LRUCacheWithPrioritiesAndExpiryTimestampsTest {
         assertEquals(-1, cache.get("A"));
         assertEquals(0, cache.get("B"));
         assertEquals(1, cache.get("C"));
-        assertEquals(null, cache.get("D"));
+        assertNull(cache.get("D"));
         assertEquals(3, cache.get("E"));
         assertEquals(4, cache.get("F"));
         assertEquals(5, cache.size());
@@ -185,7 +186,7 @@ class LRUCacheWithPrioritiesAndExpiryTimestampsTest {
         assertEquals(0, cache.get("B"));
         assertEquals(1, cache.get("C"));
         assertEquals(3, cache.get("E"));
-        assertEquals(null, cache.get("F"));
+        assertNull(cache.get("F"));
         assertEquals(5, cache.get("G"));
         assertEquals(5, cache.size());
     }
@@ -207,10 +208,10 @@ class LRUCacheWithPrioritiesAndExpiryTimestampsTest {
         cache.set("H", 6 ,5, 5009);
 
         assertEquals(-1, cache.get("A"));
-        assertEquals(null, cache.get("B"));
+        assertNull(cache.get("B"));
         assertEquals(1, cache.get("C"));
         assertEquals(3, cache.get("E"));
-        assertEquals(null, cache.get("F"));
+        assertNull(cache.get("F"));
         assertEquals(5, cache.get("G"));
         assertEquals(6, cache.get("H"));
         assertEquals(5, cache.size());
@@ -234,11 +235,11 @@ class LRUCacheWithPrioritiesAndExpiryTimestampsTest {
         cache.set("H", 6 ,5, 5009);
         cache.set("I", 7 ,5, 5011);
 
-        assertEquals(null, cache.get("A"));
-        assertEquals(null, cache.get("B"));
+        assertNull(cache.get("A"));
+        assertNull(cache.get("B"));
         assertEquals(1, cache.get("C"));
         assertEquals(3, cache.get("E"));
-        assertEquals(null, cache.get("F"));
+        assertNull(cache.get("F"));
         assertEquals(5, cache.get("G"));
         assertEquals(6, cache.get("H"));
         assertEquals(7, cache.get("I"));
@@ -265,10 +266,10 @@ class LRUCacheWithPrioritiesAndExpiryTimestampsTest {
         cache.set("A", 8 ,6, 6001);
 
         assertEquals(8, cache.get("A"));
-        assertEquals(null, cache.get("B"));
+        assertNull(cache.get("B"));
         assertEquals(1, cache.get("C"));
-        assertEquals(null, cache.get("E"));
-        assertEquals(null, cache.get("F"));
+        assertNull(cache.get("E"));
+        assertNull(cache.get("F"));
         assertEquals(5, cache.get("G"));
         assertEquals(6, cache.get("H"));
         assertEquals(7, cache.get("I"));
@@ -295,10 +296,10 @@ class LRUCacheWithPrioritiesAndExpiryTimestampsTest {
         cache.set("A", 8 ,6, 6001);
 
         assertEquals(8, cache.get("A"));
-        assertEquals(null, cache.get("B"));
+        assertNull(cache.get("B"));
         assertEquals(1, cache.get("C"));
-        assertEquals(null, cache.get("E"));
-        assertEquals(null, cache.get("F"));
+        assertNull(cache.get("E"));
+        assertNull(cache.get("F"));
         assertEquals(5, cache.get("G"));
         assertEquals(6, cache.get("H"));
         assertEquals(7, cache.get("I"));

@@ -4,7 +4,7 @@ public class LRUTimeForTests extends LRUTime {
     private long currentTimeInEpochMillis;
 
     @Override
-    public long getCurrentTimetoEpochMillis() {
+    public long getCurrentTimeToEpochMillis() {
         return currentTimeInEpochMillis;
     }
 

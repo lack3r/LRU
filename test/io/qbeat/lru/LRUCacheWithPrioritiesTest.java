@@ -36,7 +36,7 @@ class LRUCacheWithPrioritiesTest {
         cache.set("C", 2,1);
         cache.set("A", 10 ,0);
         cache.set("D", 10 ,2);
-        assertEquals(null, cache.get("A"));
+        assertNull(cache.get("A"));
         assertEquals(2, cache.get("B"));
         assertEquals(2, cache.get("C"));
         assertEquals(10, cache.get("D"));
@@ -47,7 +47,7 @@ class LRUCacheWithPrioritiesTest {
     @Test
     public void shouldReturnNullIfElementNotInCache(){
         final Integer value = cache.get("B");
-        assertEquals(null, value);
+        assertNull(value);
         assertEquals(0, cache.size());
     }
 
@@ -66,7 +66,7 @@ class LRUCacheWithPrioritiesTest {
         cache.set("B", 2,3 );
         cache.set("C", 3,3);
         cache.set("D", 8,3);
-        assertEquals(null, cache.get("A"));
+        assertNull(cache.get("A"));
         assertEquals(2, cache.get("B"));
         assertEquals(3, cache.get("C"));
         assertEquals(8, cache.get("D"));
@@ -81,7 +81,7 @@ class LRUCacheWithPrioritiesTest {
         cache.get("A");
         cache.set("D", 8,3);
         assertEquals(10, cache.get("A"));
-        assertEquals(null, cache.get("B"));
+        assertNull(cache.get("B"));
         assertEquals(3, cache.get("C"));
         assertEquals(8, cache.get("D"));
         assertEquals(3, cache.size());
@@ -101,7 +101,7 @@ class LRUCacheWithPrioritiesTest {
         cache = new LRUCacheWithPriorities(1);
         cache.set("A", 10,3);
         cache.set("B", 2,3);
-        assertEquals(null, cache.get("A"));
+        assertNull(cache.get("A"));
         assertEquals(2, cache.get("B"));
     }
 }
