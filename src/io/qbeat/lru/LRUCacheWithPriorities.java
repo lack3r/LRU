@@ -66,8 +66,7 @@ public class LRUCacheWithPriorities {
         DoubleLinkedListNode<ElementWithPriority> elementDoubleLinkedListNode = hashmapWithNodes.get(key);
         int existingPriority = elementDoubleLinkedListNode.getElement().getPriority();
 
-        elementDoubleLinkedListNode.getElement().updateValue(value);
-        elementDoubleLinkedListNode.getElement().setPriority(updatedPriority);
+        elementDoubleLinkedListNode.getElement().update(value, updatedPriority);
 
         if (existingPriority != updatedPriority) {
             // Remove element from list

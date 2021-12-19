@@ -26,25 +26,13 @@ public class ElementWithPriorityAndExpiryTimestamp {
         return value;
     }
 
-//    public void updateValue(int value) {
-//        this.value = value;
-//    }
-
     public int getPriority() {
         return priority;
     }
 
-//    public void setPriority(int priority) {
-//        this.priority = priority;
-//    }
-
     public long getExpiryTimestamp() {
         return expiryTimestamp;
     }
-
-//    public void setExpiryTimestamp(long expiryTimestamp) {
-//        this.expiryTimestamp = expiryTimestamp;
-//    }
 
     @Override
     public String toString() {
