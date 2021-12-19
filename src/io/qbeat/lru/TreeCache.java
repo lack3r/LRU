@@ -5,23 +5,14 @@ import java.util.TreeMap;
 
 public class TreeCache<K>
 {
+    // We need this, for the ordering of our list. The DoubleLinkedList is the perfect structure since we could:
+    // Add an element on the top or tail in constant time.
+    // Move an element to the top of the list, given that we have the node, again in constant time
     private TreeMap<K, DoubleLinkedList<ElementWithPriorityAndExpiryTimestamp>> cache = new TreeMap<>();
+    final private String keyName;
 
-    public DoubleLinkedListNode<ElementWithPriorityAndExpiryTimestamp> moveToTop(K currentKey, K updatedKey,DoubleLinkedListNode<ElementWithPriorityAndExpiryTimestamp> partialCacheNode){
-        ElementWithPriorityAndExpiryTimestamp element = partialCacheNode.getElement();
-        if (currentKey != updatedKey) {
-            partialCacheNode = addToDifferentCache(currentKey, updatedKey, partialCacheNode, element);
-        } else {
-            moveToTheTopInTheCorrespondingPartialCache(updatedKey, partialCacheNode);
-        }
-        return partialCacheNode;
-}
-
-    public DoubleLinkedListNode<ElementWithPriorityAndExpiryTimestamp> addToDifferentCache(K currentKey, K updatedKey, DoubleLinkedListNode<ElementWithPriorityAndExpiryTimestamp> partialCacheNode, ElementWithPriorityAndExpiryTimestamp element) {
-        // Remove element from list
-        deleteFromPartialCache(currentKey, partialCacheNode);
-        partialCacheNode = addFirstAndCreateCacheIfNotExist(updatedKey, element);
-        return partialCacheNode;
+    public TreeCache(String keyName) {
+        this.keyName = keyName;
     }
 
     public ElementWithPriorityAndExpiryTimestamp deleteLastElementFromCacheForKey(K key){
@@ -51,19 +42,26 @@ public class TreeCache<K>
         }
     }
 
-    public DoubleLinkedListNode<ElementWithPriorityAndExpiryTimestamp> moveToTheTopInCorrespondingPartialCacheOrAddInDifferentOneIfNeeded(K currentKey, K updatedKey, DoubleLinkedListNode<ElementWithPriorityAndExpiryTimestamp> partialCacheNode) {
+    public DoubleLinkedListNode<ElementWithPriorityAndExpiryTimestamp> moveToTop(K currentKey, K updatedKey, DoubleLinkedListNode<ElementWithPriorityAndExpiryTimestamp> partialCacheNode) {
         ElementWithPriorityAndExpiryTimestamp element = partialCacheNode.getElement();
         if (currentKey != updatedKey) {
             partialCacheNode = addToDifferentCache(currentKey, updatedKey, partialCacheNode, element);
         } else {
-            moveToTheTopInTheCorrespondingPartialCache(updatedKey, partialCacheNode);
+            moveToTopForKey(updatedKey, partialCacheNode);
         }
         return partialCacheNode;
     }
 
-    public void moveToTheTopInTheCorrespondingPartialCache(K key, DoubleLinkedListNode<ElementWithPriorityAndExpiryTimestamp> priorityCacheNode) {
-        DoubleLinkedList<ElementWithPriorityAndExpiryTimestamp> cacheForUpdatedPriority = cache.get(key);
-        cacheForUpdatedPriority.moveToTheTop(priorityCacheNode);
+    private DoubleLinkedListNode<ElementWithPriorityAndExpiryTimestamp> addToDifferentCache(K currentKey, K updatedKey, DoubleLinkedListNode<ElementWithPriorityAndExpiryTimestamp> partialCacheNode, ElementWithPriorityAndExpiryTimestamp element) {
+        // Remove element from list
+        deleteFromPartialCache(currentKey, partialCacheNode);
+        partialCacheNode = addFirstAndCreateCacheIfNotExist(updatedKey, element);
+        return partialCacheNode;
+    }
+
+    public void moveToTopForKey(K key, DoubleLinkedListNode<ElementWithPriorityAndExpiryTimestamp> node) {
+        DoubleLinkedList<ElementWithPriorityAndExpiryTimestamp> cacheForKey = cache.get(key);
+        cacheForKey.moveToTheTop(node);
     }
 
     private DoubleLinkedListNode<ElementWithPriorityAndExpiryTimestamp> addFirstAndCreateCacheIfNotExist(K key, ElementWithPriorityAndExpiryTimestamp element) {
@@ -83,21 +81,7 @@ public class TreeCache<K>
         }
         StringBuilder sb = new StringBuilder();
         for (Map.Entry<K, DoubleLinkedList<ElementWithPriorityAndExpiryTimestamp>> entry : cache.entrySet()) {
-            sb.append("Key Name " + entry.getKey() + ": ");
-            sb.append(entry.getValue().toString());
-            sb.append(System.getProperty("line.separator"));
-        }
-
-        return sb.toString();
-    }
-
-    public String toStringWithNamedKey(String keyname) {
-        if (cache.size() == 0) {
-            return "Cache is empty";
-        }
-        StringBuilder sb = new StringBuilder();
-        for (Map.Entry<K, DoubleLinkedList<ElementWithPriorityAndExpiryTimestamp>> entry : cache.entrySet()) {
-            sb.append(keyname +" "+ entry.getKey() + ": ");
+            sb.append(keyName + " " + entry.getKey() + ": ");
             sb.append(entry.getValue().toString());
             sb.append(System.getProperty("line.separator"));
         }

@@ -49,19 +49,10 @@ public class LRUCacheWithPrioritiesAndExpiryTimestamps {
 
     // We need this, in order to be able to find an element in our cache in constant O(1) time
     private HashMap<String, NodesPair> hashmapWithNodes = new HashMap<>();
-    // We need this, for the ordering of our list. The DoubleLinkedList is the perfect structure since we could:
-    // Add an element on the top or tail in constant time.
-    // Move an element to the top of the list, given that we have the node, again in constant time
-//    private DoubleLinkedList<Element> orderedCache = new DoubleLinkedList<>();
+    TreeCache<Integer> prioritiesCache = new TreeCache<>("Priority");
+    TreeCache<Long> expiryTimestampsCache = new TreeCache<>("ExpiryTimestamp");
 
-//    private TreeMap<Integer, DoubleLinkedList<ElementWithPriorityAndExpiryTimestamp>> prioritiesMap = new TreeMap<>();
-    TreeCache<Integer> prioritiesCache = new TreeCache<>();
-    TreeCache<Long> expiryTimestampsCache = new TreeCache<>();
-    // This treemap, also has the same values as above, but NOT THE SAME DoubleLinkedListNodes!
-    // each node has a different next and previous
-//    private TreeMap<Integer, DoubleLinkedList<ElementWithPriorityAndExpiryTimestamp>> expiryTimestampsWithElements = new TreeMap<>();
-
-    // Time complexity: O(1)
+    // Time complexity: O(logn)
     public Integer get(String key) {
         NodesPair nodesPair;
         // O(1)
@@ -71,24 +62,23 @@ public class LRUCacheWithPrioritiesAndExpiryTimestamps {
             return null;
         }
 
-        // O(1)
-        moveToTheTopInBothMaps(nodesPair);
+        // O(logn)
+        moveToTheTopInBothTreeCaches(nodesPair);
         return nodesPair.getPriorityCacheNode().getElement().getValue();
     }
 
-    private void moveToTheTopInBothMaps(NodesPair nodesPair) {
-        int priority = nodesPair.getPriorityCacheNode().getElement().getPriority();
-        prioritiesCache.moveToTheTopInTheCorrespondingPartialCache(priority, nodesPair.getPriorityCacheNode());
+    private void moveToTheTopInBothTreeCaches(NodesPair nodesPair) {
+        final ElementWithPriorityAndExpiryTimestamp element = nodesPair.getPriorityCacheNode().getElement();
+        prioritiesCache.moveToTopForKey(element.getPriority(), nodesPair.getPriorityCacheNode());
 
-        // These lines might not be needed. Let's think about them
-        long expiryTimestamp = nodesPair.getPriorityCacheNode().getElement().getExpiryTimestamp();
-        expiryTimestampsCache.moveToTheTopInTheCorrespondingPartialCache(expiryTimestamp, nodesPair.getPriorityCacheNode());
+        // These line might not be needed.
+        expiryTimestampsCache.moveToTopForKey(element.getExpiryTimestamp(), nodesPair.getExpiryCacheNode());
     }
 
-    // Time complexity: O(1)
+    // Time complexity: O(logn)
     public void set(String key, int value, int priority, int expiryTimestamp) {
         if (hashmapWithNodes.containsKey(key)) {
-            moveToTheTop(key, value, priority, expiryTimestamp);
+            updateElementAndMoveToTheTopInCorrespondingTreeCaches(key, value, priority, expiryTimestamp);
         } else {
             if (size() == capacity) {
                 // Drop element to make capacity
@@ -98,61 +88,24 @@ public class LRUCacheWithPrioritiesAndExpiryTimestamps {
         }
     }
 
-    private void moveToTheTop(String key, Integer value, int updatedPriority, long updatedTimestamp) {
-        DoubleLinkedListNode<ElementWithPriorityAndExpiryTimestamp> priorityCacheNode = hashmapWithNodes.get(key).getPriorityCacheNode();
-        DoubleLinkedListNode<ElementWithPriorityAndExpiryTimestamp> expiryCacheNode = hashmapWithNodes.get(key).getExpiryCacheNode();
+    private void updateElementAndMoveToTheTopInCorrespondingTreeCaches(String key, Integer value, int updatedPriority, long updatedTimestamp) {
+        final NodesPair initialNodesPair = hashmapWithNodes.get(key);
+
+        DoubleLinkedListNode<ElementWithPriorityAndExpiryTimestamp> priorityCacheNode = initialNodesPair.getPriorityCacheNode();
         final ElementWithPriorityAndExpiryTimestamp element = priorityCacheNode.getElement();
         int existingPriority = element.getPriority();
         final long existingExpiryTimestamp = element.getExpiryTimestamp();
 
-        priorityCacheNode = prioritiesCache.moveToTheTopInCorrespondingPartialCacheOrAddInDifferentOneIfNeeded(existingPriority, updatedPriority, priorityCacheNode);
-        expiryCacheNode = expiryTimestampsCache.moveToTheTopInCorrespondingPartialCacheOrAddInDifferentOneIfNeeded(existingExpiryTimestamp, updatedTimestamp, expiryCacheNode);
+        priorityCacheNode = prioritiesCache.moveToTop(existingPriority, updatedPriority, priorityCacheNode);
+
+        DoubleLinkedListNode<ElementWithPriorityAndExpiryTimestamp> expiryCacheNode = initialNodesPair.getExpiryCacheNode();
+        expiryCacheNode = expiryTimestampsCache.moveToTop(existingExpiryTimestamp, updatedTimestamp, expiryCacheNode);
 
         element.update(value, updatedPriority, updatedTimestamp);
 
-        NodesPair nodesPair = new NodesPair(priorityCacheNode, expiryCacheNode);
-        hashmapWithNodes.put(key, nodesPair);
+        NodesPair updatedNodesPair = new NodesPair(priorityCacheNode, expiryCacheNode);
+        hashmapWithNodes.put(key, updatedNodesPair);
     }
-
-//    private DoubleLinkedListNode<ElementWithPriorityAndExpiryTimestamp> moveToTheTopInCorrespondingPartialCacheOrAddInDifferentOneIfNeeded(Object currentKey, Object updatedKey, TreeCache<?> cache, DoubleLinkedListNode<ElementWithPriorityAndExpiryTimestamp> partialCacheNode) {
-//        ElementWithPriorityAndExpiryTimestamp element = partialCacheNode.getElement();
-//        if (currentKey != updatedKey) {
-//            partialCacheNode = cache.addToDifferentCache(currentKey, updatedKey, partialCacheNode, element);
-//        } else {
-//            moveToTheTopInTheCorrespondingPartialCache(updatedKey, partialCache, partialCacheNode);
-//        }
-//        return partialCacheNode;
-//    }
-
-//    private void moveToTheTopInTheCorrespondingPartialCache(int key, TreeMap<Integer, DoubleLinkedList<ElementWithPriorityAndExpiryTimestamp>> partialCache, DoubleLinkedListNode<ElementWithPriorityAndExpiryTimestamp> priorityCacheNode) {
-//        DoubleLinkedList<ElementWithPriorityAndExpiryTimestamp> cacheForUpdatedPriority = partialCache.get(key);
-//        cacheForUpdatedPriority.moveToTheTop(priorityCacheNode);
-//    }
-
-//    private DoubleLinkedListNode<ElementWithPriorityAndExpiryTimestamp> addToDifferentCache(int currentKey, int updatedKey, TreeMap<Integer, DoubleLinkedList<ElementWithPriorityAndExpiryTimestamp>> partialCache, DoubleLinkedListNode<ElementWithPriorityAndExpiryTimestamp> partialCacheNode, ElementWithPriorityAndExpiryTimestamp element) {
-//        // Remove element from list
-//        deleteFromPartialCache(currentKey, partialCache, partialCacheNode);
-//        partialCacheNode = addFirstAndCreateCacheIfNotExist(updatedKey, partialCache, element);
-//        return partialCacheNode;
-//    }
-
-//    private void deleteFromPartialCache(int key, TreeMap<Integer, DoubleLinkedList<ElementWithPriorityAndExpiryTimestamp>> partialCache, DoubleLinkedListNode<ElementWithPriorityAndExpiryTimestamp> priorityCacheNode) {
-//        DoubleLinkedList<ElementWithPriorityAndExpiryTimestamp> partialCacheForKey = partialCache.get(key);
-//        partialCacheForKey.remove(priorityCacheNode);
-//        if (partialCacheForKey.isEmpty()) {
-//            partialCache.remove(key);
-//        }
-//    }
-
-//    private DoubleLinkedListNode<ElementWithPriorityAndExpiryTimestamp> addFirstAndCreateCacheIfNotExist(int key, TreeMap<Integer, DoubleLinkedList<ElementWithPriorityAndExpiryTimestamp>> partialCache, ElementWithPriorityAndExpiryTimestamp element) {
-//        DoubleLinkedListNode<ElementWithPriorityAndExpiryTimestamp> partialCacheNode;
-//        if (!partialCache.containsKey(key)) {
-//            partialCache.put(key, new DoubleLinkedList<>());
-//        }
-//        DoubleLinkedList<ElementWithPriorityAndExpiryTimestamp> partialCacheForKey = partialCache.get(key);
-//        partialCacheNode = partialCacheForKey.putFirst(element);
-//        return partialCacheNode;
-//    }
 
     public int size() {
         return hashmapWithNodes.size();
@@ -204,7 +157,22 @@ public class LRUCacheWithPrioritiesAndExpiryTimestamps {
 
     @Override
     public String toString() {
-        return prioritiesCache.toStringWithNamedKey("Priority");
+        StringBuilder sb = new StringBuilder();
+        sb.append("Priorities Cache");
+        sb.append(System.getProperty("line.separator"));
+        sb.append("===============");
+        sb.append(System.getProperty("line.separator"));
+        sb.append(prioritiesCache.toString());
+        sb.append(System.getProperty("line.separator"));
+        sb.append(System.getProperty("line.separator"));
+
+        sb.append("Expiry Timestamps Cache");
+        sb.append(System.getProperty("line.separator"));
+        sb.append("===============");
+        sb.append(System.getProperty("line.separator"));
+        sb.append(expiryTimestampsCache.toString());
+
+        return sb.toString();
     }
 
     public static void main(String[] args) {
