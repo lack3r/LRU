@@ -1,7 +1,6 @@
 package io.qbeat.lru;
 
 import java.util.HashMap;
-import java.util.Optional;
 
 public class LRUCache {
 
