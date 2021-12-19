@@ -6,14 +6,7 @@ import java.util.Optional;
 
 public class LRUCacheWithPrioritiesAndExpiryTimestamps {
     private final int capacity;
-
-    // This does not belong in the LRU.
-    // To get the currentEpochTime, we should call the following instead:
-    // long now = Instant.now().toEpochMilli();
-    // However, this is here just to facilitate unit testing the LRU
-    // And for no other purpose
-    // TODO: Do this properly: https://stackoverflow.com/a/2425739
-    private Optional<Long> currentEpochTime = Optional.empty();
+    private LRUTime lruTime;
 
     /**
      * An implementation of the Last Recently Used (LRU) Cache
@@ -22,8 +15,9 @@ public class LRUCacheWithPrioritiesAndExpiryTimestamps {
      *
      * @param capacity The capacity the Cache should have
      */
-    public LRUCacheWithPrioritiesAndExpiryTimestamps(int capacity) {
+    public LRUCacheWithPrioritiesAndExpiryTimestamps(int capacity, LRUTime lruTime) {
         this.capacity = capacity;
+        this.lruTime = lruTime;
     }
 
     class NodesPair{
@@ -130,7 +124,7 @@ public class LRUCacheWithPrioritiesAndExpiryTimestamps {
         }
 
         final Long lowestExpiryTimestamp = expiryTimestampsCache.firstKey();
-        if (lowestExpiryTimestamp < currentEpochTime.orElse(Instant.now().toEpochMilli()) ){
+        if (lowestExpiryTimestamp < lruTime.getCurrentTimetoEpochMillis() ){
             removeExpiredItem(lowestExpiryTimestamp);
             return true;
         }
@@ -177,8 +171,9 @@ public class LRUCacheWithPrioritiesAndExpiryTimestamps {
     }
 
     public static void main(String[] args) {
-        LRUCacheWithPrioritiesAndExpiryTimestamps lruCacheWithPrioritiesAndExpiryTimestamps = new LRUCacheWithPrioritiesAndExpiryTimestamps(5);
-        lruCacheWithPrioritiesAndExpiryTimestamps.setCurrentEpochTime(0L);
+        final LRUTimeForTests lruTimeForTests = new LRUTimeForTests();
+        LRUCacheWithPrioritiesAndExpiryTimestamps lruCacheWithPrioritiesAndExpiryTimestamps = new LRUCacheWithPrioritiesAndExpiryTimestamps(5, lruTimeForTests);
+        lruTimeForTests.setCurrentTimeInEpochMillis(0L);
         System.out.println(lruCacheWithPrioritiesAndExpiryTimestamps);
         lruCacheWithPrioritiesAndExpiryTimestamps.set("A", 1, 7, 8000);
         System.out.println(lruCacheWithPrioritiesAndExpiryTimestamps);
@@ -192,7 +187,7 @@ public class LRUCacheWithPrioritiesAndExpiryTimestamps {
         System.out.println(lruCacheWithPrioritiesAndExpiryTimestamps);
         lruCacheWithPrioritiesAndExpiryTimestamps.get("C");
         System.out.println(lruCacheWithPrioritiesAndExpiryTimestamps);
-        lruCacheWithPrioritiesAndExpiryTimestamps.setCurrentEpochTime(1000L);
+        lruTimeForTests.setCurrentTimeInEpochMillis(1000L);
         lruCacheWithPrioritiesAndExpiryTimestamps.set("F", 4, 7, 6000);
         System.out.println(lruCacheWithPrioritiesAndExpiryTimestamps);
         lruCacheWithPrioritiesAndExpiryTimestamps.set("G", 1, 7, 6010);
@@ -209,13 +204,5 @@ public class LRUCacheWithPrioritiesAndExpiryTimestamps {
         System.out.println(lruCacheWithPrioritiesAndExpiryTimestamps);
         lruCacheWithPrioritiesAndExpiryTimestamps.get("F");
         System.out.println(lruCacheWithPrioritiesAndExpiryTimestamps);
-    }
-
-    public Optional<Long> getCurrentEpochTime() {
-        return currentEpochTime;
-    }
-
-    public void setCurrentEpochTime(Long currentEpochTime) {
-        this.currentEpochTime = Optional.ofNullable(currentEpochTime);
     }
 }
