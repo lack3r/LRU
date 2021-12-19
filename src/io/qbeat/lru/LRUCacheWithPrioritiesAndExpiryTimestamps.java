@@ -1,10 +1,11 @@
 package io.qbeat.lru;
 
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.Optional;
 
 public class LRUCacheWithPrioritiesAndExpiryTimestamps {
-    private int capacity;
+    private final int capacity;
 
     // This does not belong in the LRU.
     // To get the currentEpochTime, we should call the following instead:
@@ -28,8 +29,8 @@ public class LRUCacheWithPrioritiesAndExpiryTimestamps {
     class NodesPair{
         // The two nodes point to the same element.
         // However, we need both nodes, since they represent nodes in different lists
-        private DoubleLinkedListNode<ElementWithPriorityAndExpiryTimestamp> priorityCacheNode;
-        private DoubleLinkedListNode<ElementWithPriorityAndExpiryTimestamp> expiryCacheNode;
+        private final DoubleLinkedListNode<ElementWithPriorityAndExpiryTimestamp> priorityCacheNode;
+        private final DoubleLinkedListNode<ElementWithPriorityAndExpiryTimestamp> expiryCacheNode;
 
         NodesPair(DoubleLinkedListNode<ElementWithPriorityAndExpiryTimestamp> priorityCacheNode, DoubleLinkedListNode<ElementWithPriorityAndExpiryTimestamp> expiryCacheNode) {
             this.priorityCacheNode = priorityCacheNode;
@@ -46,9 +47,9 @@ public class LRUCacheWithPrioritiesAndExpiryTimestamps {
     }
 
     // We need this, in order to be able to find an element in our cache in constant O(1) time
-    private HashMap<String, NodesPair> hashmapWithNodes = new HashMap<>();
-    private TreeCache<Integer> prioritiesCache = new TreeCache<>("Priority");
-    private TreeCache<Long> expiryTimestampsCache = new TreeCache<>("ExpiryTimestamp");
+    private final HashMap<String, NodesPair> hashmapWithNodes = new HashMap<>();
+    private final TreeCache<Integer> prioritiesCache = new TreeCache<>("Priority");
+    private final TreeCache<Long> expiryTimestampsCache = new TreeCache<>("ExpiryTimestamp");
 
     // Time complexity: O(logn)
     public Integer get(String key) {
@@ -129,20 +130,20 @@ public class LRUCacheWithPrioritiesAndExpiryTimestamps {
         }
 
         final Long lowestExpiryTimestamp = expiryTimestampsCache.firstKey();
-        if (lowestExpiryTimestamp < currentEpochTime.get() ){
-            return removeExpiredItem(lowestExpiryTimestamp);
+        if (lowestExpiryTimestamp < currentEpochTime.orElse(Instant.now().toEpochMilli()) ){
+            removeExpiredItem(lowestExpiryTimestamp);
+            return true;
         }
         return false;
     }
 
-    private boolean removeExpiredItem(Long lowestExpiryTimestamp) {
+    private void removeExpiredItem(Long lowestExpiryTimestamp) {
         final ElementWithPriorityAndExpiryTimestamp elementWithPriorityAndExpiryTimestamp = expiryTimestampsCache.deleteLastElementFromCacheForKey(lowestExpiryTimestamp);
 
         DoubleLinkedListNode<ElementWithPriorityAndExpiryTimestamp> node = hashmapWithNodes.get(elementWithPriorityAndExpiryTimestamp.getKey()).getPriorityCacheNode();
         int priority = node.getElement().getPriority();
         prioritiesCache.delete(priority, node);
         hashmapWithNodes.remove(node.getElement().getKey());
-        return true;
     }
 
     private void insertToTheTop(String key, Integer value, int priority, long expiryTimestamp) {
@@ -177,7 +178,7 @@ public class LRUCacheWithPrioritiesAndExpiryTimestamps {
 
     public static void main(String[] args) {
         LRUCacheWithPrioritiesAndExpiryTimestamps lruCacheWithPrioritiesAndExpiryTimestamps = new LRUCacheWithPrioritiesAndExpiryTimestamps(5);
-        lruCacheWithPrioritiesAndExpiryTimestamps.setCurrentEpochTime(Optional.of(0L));
+        lruCacheWithPrioritiesAndExpiryTimestamps.setCurrentEpochTime(0L);
         System.out.println(lruCacheWithPrioritiesAndExpiryTimestamps);
         lruCacheWithPrioritiesAndExpiryTimestamps.set("A", 1, 7, 8000);
         System.out.println(lruCacheWithPrioritiesAndExpiryTimestamps);
@@ -191,7 +192,7 @@ public class LRUCacheWithPrioritiesAndExpiryTimestamps {
         System.out.println(lruCacheWithPrioritiesAndExpiryTimestamps);
         lruCacheWithPrioritiesAndExpiryTimestamps.get("C");
         System.out.println(lruCacheWithPrioritiesAndExpiryTimestamps);
-        lruCacheWithPrioritiesAndExpiryTimestamps.setCurrentEpochTime(Optional.of(1000L));
+        lruCacheWithPrioritiesAndExpiryTimestamps.setCurrentEpochTime(1000L);
         lruCacheWithPrioritiesAndExpiryTimestamps.set("F", 4, 7, 6000);
         System.out.println(lruCacheWithPrioritiesAndExpiryTimestamps);
         lruCacheWithPrioritiesAndExpiryTimestamps.set("G", 1, 7, 6010);
@@ -214,7 +215,7 @@ public class LRUCacheWithPrioritiesAndExpiryTimestamps {
         return currentEpochTime;
     }
 
-    public void setCurrentEpochTime(Optional<Long> currentEpochTime) {
-        this.currentEpochTime = currentEpochTime;
+    public void setCurrentEpochTime(Long currentEpochTime) {
+        this.currentEpochTime = Optional.ofNullable(currentEpochTime);
     }
 }

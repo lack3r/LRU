@@ -1,7 +1,7 @@
 package io.qbeat.lru;
 
 public class Element {
-    private String key;
+    private final String key;
     private int value;
 
     Element(String key, int value) {

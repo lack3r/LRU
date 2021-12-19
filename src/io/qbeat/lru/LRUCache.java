@@ -5,7 +5,7 @@ import java.util.Optional;
 
 public class LRUCache {
 
-    private int capacity;
+    private final int capacity;
 
     /**
      * An implementation of the Last Recently Used (LRU) Cache
@@ -19,26 +19,26 @@ public class LRUCache {
     }
 
     // We need this, in order to be able to find an element in our cache in constant O(1) time
-    private HashMap<String, DoubleLinkedListNode<Element>> hashmapWithNodes = new HashMap<>();
+    private final HashMap<String, DoubleLinkedListNode<Element>> hashmapWithNodes = new HashMap<>();
     // We need this, for the ordering of our list. The DoubleLinkedList is the perfect structure since we could:
     // Add an element on the top or tail in constant time.
     // Move an element to the top of the list, given that we have the node, again in constant time
-    private DoubleLinkedList<Element> orderedCache = new DoubleLinkedList<>();
+    private final DoubleLinkedList<Element> orderedCache = new DoubleLinkedList<>();
 
     // Time complexity: O(1)
-    public Optional<Integer> get(String key) {
+    public Integer get(String key) {
         DoubleLinkedListNode<Element> node;
         // O(1)
         if (hashmapWithNodes.containsKey(key)) {
             node = hashmapWithNodes.get(key);
         } else {
-            return Optional.empty();
+            return null;
         }
 
         // O(1)
         orderedCache.moveToTheTop(node);
 
-        return Optional.of(node.getElement().getValue());
+        return node.getElement().getValue();
     }
 
     // Time complexity: O(1)

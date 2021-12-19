@@ -1,7 +1,7 @@
 package io.qbeat.lru;
 
 public class ElementWithPriorityAndExpiryTimestamp {
-    private String key;
+    private final String key;
     private int value;
     private int priority;
     private long expiryTimestamp; // Time since Unix epoch till this expires

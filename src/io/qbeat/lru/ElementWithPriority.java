@@ -1,7 +1,7 @@
 package io.qbeat.lru;
 
 public class ElementWithPriority {
-    private String key;
+    private final String key;
     private int value;
 
     private int priority;

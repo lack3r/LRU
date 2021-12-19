@@ -3,7 +3,7 @@ package io.qbeat.lru;
 import java.util.Map;
 import java.util.TreeMap;
 
-public class TreeCache<K>
+public class TreeCache<K extends Comparable<K>>
 {
     // We need this, for the ordering of our list. The DoubleLinkedList is the perfect structure since we could:
     // Add an element on the top or tail in constant time.
@@ -76,16 +76,12 @@ public class TreeCache<K>
         }
         StringBuilder sb = new StringBuilder();
         for (Map.Entry<K, DoubleLinkedList<ElementWithPriorityAndExpiryTimestamp>> entry : cache.entrySet()) {
-            sb.append(keyName + " " + entry.getKey() + ": ");
+            sb.append(keyName).append(" ").append(entry.getKey()).append(": ");
             sb.append(entry.getValue().toString());
             sb.append(System.getProperty("line.separator"));
         }
 
         return sb.toString();
-    }
-
-    public int size(){
-        return cache.size();
     }
 
     public boolean isEmpty() {
@@ -94,13 +90,5 @@ public class TreeCache<K>
 
     public K firstKey() {
         return cache.firstKey();
-    }
-
-    public DoubleLinkedList<ElementWithPriorityAndExpiryTimestamp> get(K key) {
-        return cache.get(key);
-    }
-
-    public DoubleLinkedList<ElementWithPriorityAndExpiryTimestamp> remove(K key) {
-        return cache.remove(key);
     }
 }

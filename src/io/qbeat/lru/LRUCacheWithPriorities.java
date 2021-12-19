@@ -6,7 +6,7 @@ import java.util.TreeMap;
 
 public class LRUCacheWithPriorities {
 
-    private int capacity;
+    private final int capacity;
 
     /**
      * An implementation of the Last Recently Used (LRU) Cache
@@ -20,9 +20,9 @@ public class LRUCacheWithPriorities {
     }
 
     // We need this, in order to be able to find an element in our cache in constant O(1) time
-    private HashMap<String, DoubleLinkedListNode<ElementWithPriority>> hashmapWithNodes = new HashMap<>();
+    private final HashMap<String, DoubleLinkedListNode<ElementWithPriority>> hashmapWithNodes = new HashMap<>();
 
-    private TreeMap<Integer, DoubleLinkedList<ElementWithPriority>> prioritiesMap = new TreeMap<>();
+    private final TreeMap<Integer, DoubleLinkedList<ElementWithPriority>> prioritiesMap = new TreeMap<>();
 
     // Time complexity: O(1)
     public Integer get(String key) {
@@ -113,7 +113,7 @@ public class LRUCacheWithPriorities {
         }
         StringBuilder sb = new StringBuilder();
         for (Map.Entry<Integer, DoubleLinkedList<ElementWithPriority>> entry : prioritiesMap.entrySet()) {
-            sb.append("Priority " + entry.getKey() + ": ");
+            sb.append("Priority ").append(entry.getKey()).append(": ");
             sb.append(entry.getValue().toString());
             sb.append(System.getProperty("line.separator"));
         }
