@@ -120,7 +120,8 @@ public class LRUCacheWithPrioritiesAndExpiryTimestamps {
         }
 
         final ElementWithPriorityAndExpiryTimestamp elementWithPriorityAndExpiryTimestamp = prioritiesCache.deleteLastElementFromCacheForKey(prioritiesCache.firstKey());
-        hashmapWithNodes.remove(elementWithPriorityAndExpiryTimestamp);
+        expiryTimestampsCache.delete(elementWithPriorityAndExpiryTimestamp.getExpiryTimestamp(),hashmapWithNodes.get(elementWithPriorityAndExpiryTimestamp.getKey()).expiryCacheNode);
+        hashmapWithNodes.remove(elementWithPriorityAndExpiryTimestamp.getKey());
     }
 
     private boolean removeExpiredItemIfAny() {
@@ -130,20 +131,20 @@ public class LRUCacheWithPrioritiesAndExpiryTimestamps {
 
         final Long lowestExpiryTimestamp = expiryTimestampsCache.firstKey();
         if (lowestExpiryTimestamp < currentEpochTime.get() ){
-            DoubleLinkedList<ElementWithPriorityAndExpiryTimestamp> lowestExpiryItems = expiryTimestampsCache.get(lowestExpiryTimestamp);
-            ElementWithPriorityAndExpiryTimestamp elementWithPriorityAndExpiryTimestamp = lowestExpiryItems.removeLast();
-            if (lowestExpiryItems.isEmpty()){
-                expiryTimestampsCache.remove(lowestExpiryTimestamp);
-            }
-
-            // Get the node to be removed from both the priorities list and the hashmap
-            DoubleLinkedListNode<ElementWithPriorityAndExpiryTimestamp> node = hashmapWithNodes.get(elementWithPriorityAndExpiryTimestamp.getKey()).getExpiryCacheNode();
-            int priority = node.getElement().getPriority();
-            prioritiesCache.deleteFromPartialCache(priority, node);
-            hashmapWithNodes.remove(node);
-            return true;
+            return removeExpiredItem(lowestExpiryTimestamp);
         }
         return false;
+    }
+
+    private boolean removeExpiredItem(Long lowestExpiryTimestamp) {
+        final ElementWithPriorityAndExpiryTimestamp elementWithPriorityAndExpiryTimestamp = expiryTimestampsCache.deleteLastElementFromCacheForKey(lowestExpiryTimestamp);
+
+        // Get the node to be removed from both the priorities list and the hashmap
+        DoubleLinkedListNode<ElementWithPriorityAndExpiryTimestamp> node = hashmapWithNodes.get(elementWithPriorityAndExpiryTimestamp.getKey()).getPriorityCacheNode();
+        int priority = node.getElement().getPriority();
+        prioritiesCache.delete(priority, node);
+        hashmapWithNodes.remove(node.getElement().getKey());
+        return true;
     }
 
     private void insertToTheTop(String key, Integer value, int priority, long expiryTimestamp) {
@@ -179,21 +180,34 @@ public class LRUCacheWithPrioritiesAndExpiryTimestamps {
         LRUCacheWithPrioritiesAndExpiryTimestamps lruCacheWithPrioritiesAndExpiryTimestamps = new LRUCacheWithPrioritiesAndExpiryTimestamps(5);
         lruCacheWithPrioritiesAndExpiryTimestamps.setCurrentEpochTime(Optional.of(0L));
         System.out.println(lruCacheWithPrioritiesAndExpiryTimestamps);
-        lruCacheWithPrioritiesAndExpiryTimestamps.set("A", 5, 4, 1000);
+        lruCacheWithPrioritiesAndExpiryTimestamps.set("A", 1, 7, 8000);
         System.out.println(lruCacheWithPrioritiesAndExpiryTimestamps);
-        lruCacheWithPrioritiesAndExpiryTimestamps.set("B", 4, 1, 2);
+        lruCacheWithPrioritiesAndExpiryTimestamps.set("B", 2, 3, 40006);
         System.out.println(lruCacheWithPrioritiesAndExpiryTimestamps);
-        lruCacheWithPrioritiesAndExpiryTimestamps.set("C", 3, 7, 600);
+        lruCacheWithPrioritiesAndExpiryTimestamps.set("C", 3, 7, 8000);
         System.out.println(lruCacheWithPrioritiesAndExpiryTimestamps);
-        lruCacheWithPrioritiesAndExpiryTimestamps.set("D", 2, 8, 2000);
+        lruCacheWithPrioritiesAndExpiryTimestamps.set("D", 4, 11, 600);
         System.out.println(lruCacheWithPrioritiesAndExpiryTimestamps);
-        lruCacheWithPrioritiesAndExpiryTimestamps.set("E", 1, 5, 5000);
+        lruCacheWithPrioritiesAndExpiryTimestamps.set("E", 5, 7, 8010);
         System.out.println(lruCacheWithPrioritiesAndExpiryTimestamps);
         lruCacheWithPrioritiesAndExpiryTimestamps.get("C");
         System.out.println(lruCacheWithPrioritiesAndExpiryTimestamps);
-        lruCacheWithPrioritiesAndExpiryTimestamps.set("F", 4, 5, 5000);
+        lruCacheWithPrioritiesAndExpiryTimestamps.setCurrentEpochTime(Optional.of(1000L));
+        lruCacheWithPrioritiesAndExpiryTimestamps.set("F", 4, 7, 6000);
         System.out.println(lruCacheWithPrioritiesAndExpiryTimestamps);
-        lruCacheWithPrioritiesAndExpiryTimestamps.set("E", 2, 5, 2900);
+        lruCacheWithPrioritiesAndExpiryTimestamps.set("G", 1, 7, 6010);
+        System.out.println(lruCacheWithPrioritiesAndExpiryTimestamps);
+        lruCacheWithPrioritiesAndExpiryTimestamps.set("H", 0, 7, 6020);
+        System.out.println(lruCacheWithPrioritiesAndExpiryTimestamps);
+        lruCacheWithPrioritiesAndExpiryTimestamps.set("I", -1, 7, 6030);
+        System.out.println(lruCacheWithPrioritiesAndExpiryTimestamps);
+        lruCacheWithPrioritiesAndExpiryTimestamps.get("D");
+        System.out.println(lruCacheWithPrioritiesAndExpiryTimestamps);
+        lruCacheWithPrioritiesAndExpiryTimestamps.set("A", -3, 8, 7003);
+        System.out.println(lruCacheWithPrioritiesAndExpiryTimestamps);
+        lruCacheWithPrioritiesAndExpiryTimestamps.set("D", 8, 7, 7015);
+        System.out.println(lruCacheWithPrioritiesAndExpiryTimestamps);
+        lruCacheWithPrioritiesAndExpiryTimestamps.get("F");
         System.out.println(lruCacheWithPrioritiesAndExpiryTimestamps);
     }
 

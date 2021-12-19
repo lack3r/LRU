@@ -19,7 +19,7 @@ public class TreeCache<K>
         DoubleLinkedList<ElementWithPriorityAndExpiryTimestamp> cacheForFirstPriority = cache.get(key);
         ElementWithPriorityAndExpiryTimestamp elementWithPriorityAndTimestamp = cacheForFirstPriority.removeLast();
         if (cacheForFirstPriority.isEmpty()) {
-            cache.remove(cache.firstKey());
+            cache.remove(key);
         }
         return elementWithPriorityAndTimestamp;
     }
@@ -34,7 +34,7 @@ public class TreeCache<K>
         return node;
     }
 
-    public void deleteFromPartialCache(K key, DoubleLinkedListNode<ElementWithPriorityAndExpiryTimestamp> priorityCacheNode) {
+    public void delete(K key, DoubleLinkedListNode<ElementWithPriorityAndExpiryTimestamp> priorityCacheNode) {
         DoubleLinkedList<ElementWithPriorityAndExpiryTimestamp> partialCacheForKey = cache.get(key);
         partialCacheForKey.remove(priorityCacheNode);
         if (partialCacheForKey.isEmpty()) {
@@ -54,7 +54,7 @@ public class TreeCache<K>
 
     private DoubleLinkedListNode<ElementWithPriorityAndExpiryTimestamp> addToDifferentCache(K currentKey, K updatedKey, DoubleLinkedListNode<ElementWithPriorityAndExpiryTimestamp> partialCacheNode, ElementWithPriorityAndExpiryTimestamp element) {
         // Remove element from list
-        deleteFromPartialCache(currentKey, partialCacheNode);
+        delete(currentKey, partialCacheNode);
         partialCacheNode = addFirstAndCreateCacheIfNotExist(updatedKey, element);
         return partialCacheNode;
     }
