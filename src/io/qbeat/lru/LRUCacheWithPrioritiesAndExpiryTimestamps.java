@@ -31,26 +31,24 @@ public class LRUCacheWithPrioritiesAndExpiryTimestamps {
         private DoubleLinkedListNode<ElementWithPriorityAndExpiryTimestamp> priorityCacheNode;
         private DoubleLinkedListNode<ElementWithPriorityAndExpiryTimestamp> expiryCacheNode;
 
-        // TODO think if it would be better to create two marker classes, one of the priority cache
-        // and one for the expiry cache, to avoid confusion regarding the order in the constructor
-        public NodesPair(DoubleLinkedListNode<ElementWithPriorityAndExpiryTimestamp> priorityCacheNode, DoubleLinkedListNode<ElementWithPriorityAndExpiryTimestamp> expiryCacheNode) {
+        NodesPair(DoubleLinkedListNode<ElementWithPriorityAndExpiryTimestamp> priorityCacheNode, DoubleLinkedListNode<ElementWithPriorityAndExpiryTimestamp> expiryCacheNode) {
             this.priorityCacheNode = priorityCacheNode;
             this.expiryCacheNode = expiryCacheNode;
         }
 
-        public DoubleLinkedListNode<ElementWithPriorityAndExpiryTimestamp> getPriorityCacheNode() {
+        DoubleLinkedListNode<ElementWithPriorityAndExpiryTimestamp> getPriorityCacheNode() {
             return priorityCacheNode;
         }
 
-        public DoubleLinkedListNode<ElementWithPriorityAndExpiryTimestamp> getExpiryCacheNode() {
+        DoubleLinkedListNode<ElementWithPriorityAndExpiryTimestamp> getExpiryCacheNode() {
             return expiryCacheNode;
         }
     }
 
     // We need this, in order to be able to find an element in our cache in constant O(1) time
     private HashMap<String, NodesPair> hashmapWithNodes = new HashMap<>();
-    TreeCache<Integer> prioritiesCache = new TreeCache<>("Priority");
-    TreeCache<Long> expiryTimestampsCache = new TreeCache<>("ExpiryTimestamp");
+    private TreeCache<Integer> prioritiesCache = new TreeCache<>("Priority");
+    private TreeCache<Long> expiryTimestampsCache = new TreeCache<>("ExpiryTimestamp");
 
     // Time complexity: O(logn)
     public Integer get(String key) {
@@ -80,28 +78,30 @@ public class LRUCacheWithPrioritiesAndExpiryTimestamps {
         if (hashmapWithNodes.containsKey(key)) {
             updateElementAndMoveToTheTopInCorrespondingTreeCaches(key, value, priority, expiryTimestamp);
         } else {
-            if (size() == capacity) {
-                // Drop element to make capacity
-                removeExpiredItemOrItemWithLowestPriorityOrLastUsed();
-            }
+            dropElementIfCapacityIsReached();
             insertToTheTop(key, value, priority, expiryTimestamp);
         }
     }
 
-    private void updateElementAndMoveToTheTopInCorrespondingTreeCaches(String key, Integer value, int updatedPriority, long updatedTimestamp) {
+    private void dropElementIfCapacityIsReached() {
+        if (size() == capacity) {
+            removeExpiredItemOrItemWithLowestPriorityOrLastUsed();
+        }
+    }
+
+    private void updateElementAndMoveToTheTopInCorrespondingTreeCaches(String key, Integer updatedValue, int updatedPriority, long updatedTimestamp) {
         final NodesPair initialNodesPair = hashmapWithNodes.get(key);
 
         DoubleLinkedListNode<ElementWithPriorityAndExpiryTimestamp> priorityCacheNode = initialNodesPair.getPriorityCacheNode();
         final ElementWithPriorityAndExpiryTimestamp element = priorityCacheNode.getElement();
         int existingPriority = element.getPriority();
-        final long existingExpiryTimestamp = element.getExpiryTimestamp();
-
         priorityCacheNode = prioritiesCache.moveToTop(existingPriority, updatedPriority, priorityCacheNode);
 
         DoubleLinkedListNode<ElementWithPriorityAndExpiryTimestamp> expiryCacheNode = initialNodesPair.getExpiryCacheNode();
+        final long existingExpiryTimestamp = element.getExpiryTimestamp();
         expiryCacheNode = expiryTimestampsCache.moveToTop(existingExpiryTimestamp, updatedTimestamp, expiryCacheNode);
 
-        element.update(value, updatedPriority, updatedTimestamp);
+        element.update(updatedValue, updatedPriority, updatedTimestamp);
 
         NodesPair updatedNodesPair = new NodesPair(priorityCacheNode, expiryCacheNode);
         hashmapWithNodes.put(key, updatedNodesPair);
@@ -113,7 +113,6 @@ public class LRUCacheWithPrioritiesAndExpiryTimestamps {
 
     private void removeExpiredItemOrItemWithLowestPriorityOrLastUsed() {
 
-        // remove item if expired
         boolean wasItemRemoved = removeExpiredItemIfAny();
         if (wasItemRemoved){
             return;
@@ -139,7 +138,6 @@ public class LRUCacheWithPrioritiesAndExpiryTimestamps {
     private boolean removeExpiredItem(Long lowestExpiryTimestamp) {
         final ElementWithPriorityAndExpiryTimestamp elementWithPriorityAndExpiryTimestamp = expiryTimestampsCache.deleteLastElementFromCacheForKey(lowestExpiryTimestamp);
 
-        // Get the node to be removed from both the priorities list and the hashmap
         DoubleLinkedListNode<ElementWithPriorityAndExpiryTimestamp> node = hashmapWithNodes.get(elementWithPriorityAndExpiryTimestamp.getKey()).getPriorityCacheNode();
         int priority = node.getElement().getPriority();
         prioritiesCache.delete(priority, node);
@@ -160,17 +158,18 @@ public class LRUCacheWithPrioritiesAndExpiryTimestamps {
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append("Priorities Cache");
-        sb.append(System.getProperty("line.separator"));
+        final String newLine = System.getProperty("line.separator");
+        sb.append(newLine);
         sb.append("===============");
-        sb.append(System.getProperty("line.separator"));
+        sb.append(newLine);
         sb.append(prioritiesCache.toString());
-        sb.append(System.getProperty("line.separator"));
-        sb.append(System.getProperty("line.separator"));
+        sb.append(newLine);
+        sb.append(newLine);
 
         sb.append("Expiry Timestamps Cache");
-        sb.append(System.getProperty("line.separator"));
+        sb.append(newLine);
         sb.append("===============");
-        sb.append(System.getProperty("line.separator"));
+        sb.append(newLine);
         sb.append(expiryTimestampsCache.toString());
 
         return sb.toString();

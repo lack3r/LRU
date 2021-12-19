@@ -21,10 +21,6 @@ public class LRUCacheWithPriorities {
 
     // We need this, in order to be able to find an element in our cache in constant O(1) time
     private HashMap<String, DoubleLinkedListNode<ElementWithPriority>> hashmapWithNodes = new HashMap<>();
-    // We need this, for the ordering of our list. The DoubleLinkedList is the perfect structure since we could:
-    // Add an element on the top or tail in constant time.
-    // Move an element to the top of the list, given that we have the node, again in constant time
-//    private DoubleLinkedList<Element> orderedCache = new DoubleLinkedList<>();
 
     private TreeMap<Integer, DoubleLinkedList<ElementWithPriority>> prioritiesMap = new TreeMap<>();
 
@@ -75,9 +71,8 @@ public class LRUCacheWithPriorities {
             if (cacheForPriority.isEmpty()) {
                 prioritiesMap.remove(existingPriority);
             }
-            if (!prioritiesMap.containsKey(updatedPriority)) {
-                prioritiesMap.put(updatedPriority, new DoubleLinkedList<>());
-            }
+            prioritiesMap.putIfAbsent(updatedPriority, new DoubleLinkedList<>());
+
             DoubleLinkedList<ElementWithPriority> cacheForUpdatedPriority = prioritiesMap.get(updatedPriority);
             elementDoubleLinkedListNode = cacheForUpdatedPriority.putFirst(elementDoubleLinkedListNode.getElement());
         } else {
@@ -98,13 +93,12 @@ public class LRUCacheWithPriorities {
         if (cacheForFirstPriority.isEmpty()) {
             prioritiesMap.remove(prioritiesMap.firstKey());
         }
-        hashmapWithNodes.remove(elementWithPriority);
+        hashmapWithNodes.remove(elementWithPriority.getKey());
     }
 
     private void insertToTheTop(String key, Integer value, int priority) {
-        if (!prioritiesMap.containsKey(priority)) {
-            prioritiesMap.put(priority, new DoubleLinkedList<>());
-        }
+        prioritiesMap.putIfAbsent(priority, new DoubleLinkedList<>());
+
 
         DoubleLinkedList<ElementWithPriority> cacheForUpdatedPriority = prioritiesMap.get(priority);
         DoubleLinkedListNode<ElementWithPriority> node = cacheForUpdatedPriority.putFirst(new ElementWithPriority(key, value, priority));

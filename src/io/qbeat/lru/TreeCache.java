@@ -8,8 +8,8 @@ public class TreeCache<K>
     // We need this, for the ordering of our list. The DoubleLinkedList is the perfect structure since we could:
     // Add an element on the top or tail in constant time.
     // Move an element to the top of the list, given that we have the node, again in constant time
-    private TreeMap<K, DoubleLinkedList<ElementWithPriorityAndExpiryTimestamp>> cache = new TreeMap<>();
-    final private String keyName;
+    private final TreeMap<K, DoubleLinkedList<ElementWithPriorityAndExpiryTimestamp>> cache = new TreeMap<>();
+    private final String keyName;
 
     public TreeCache(String keyName) {
         this.keyName = keyName;
@@ -25,13 +25,10 @@ public class TreeCache<K>
     }
 
     public DoubleLinkedListNode<ElementWithPriorityAndExpiryTimestamp> insertToTheTop(K key, ElementWithPriorityAndExpiryTimestamp elementWithPriorityAndExpiryTimestamp){
-        if (!cache.containsKey(key)) {
-            cache.put(key , new DoubleLinkedList<>());
-        }
+        cache.putIfAbsent(key, new DoubleLinkedList<>());
 
         DoubleLinkedList<ElementWithPriorityAndExpiryTimestamp> cacheForUpdatedPriority = cache.get(key);
-        DoubleLinkedListNode<ElementWithPriorityAndExpiryTimestamp> node = cacheForUpdatedPriority.putFirst(elementWithPriorityAndExpiryTimestamp);
-        return node;
+        return cacheForUpdatedPriority.putFirst(elementWithPriorityAndExpiryTimestamp);
     }
 
     public void delete(K key, DoubleLinkedListNode<ElementWithPriorityAndExpiryTimestamp> priorityCacheNode) {
@@ -66,9 +63,7 @@ public class TreeCache<K>
 
     private DoubleLinkedListNode<ElementWithPriorityAndExpiryTimestamp> addFirstAndCreateCacheIfNotExist(K key, ElementWithPriorityAndExpiryTimestamp element) {
         DoubleLinkedListNode<ElementWithPriorityAndExpiryTimestamp> partialCacheNode;
-        if (!cache.containsKey(key)) {
-            cache.put(key, new DoubleLinkedList<>());
-        }
+        cache.putIfAbsent(key, new DoubleLinkedList<>());
         DoubleLinkedList<ElementWithPriorityAndExpiryTimestamp> partialCacheForKey = cache.get(key);
         partialCacheNode = partialCacheForKey.putFirst(element);
         return partialCacheNode;
