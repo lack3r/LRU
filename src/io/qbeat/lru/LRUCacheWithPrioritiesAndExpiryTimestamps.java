@@ -1,8 +1,6 @@
 package io.qbeat.lru;
 
-import java.time.Instant;
 import java.util.HashMap;
-import java.util.Optional;
 
 public class LRUCacheWithPrioritiesAndExpiryTimestamps {
     private final int capacity;
@@ -10,8 +8,9 @@ public class LRUCacheWithPrioritiesAndExpiryTimestamps {
 
     /**
      * An implementation of the Last Recently Used (LRU) Cache
-     * Both Set and Get methods require a constant time
-     * Does not support concurrency or expiry date.
+     * Get has timeComplexity O(n)
+     * Set has timeComplexity O(logn)
+     * Does not support concurrency.
      *
      * @param capacity The capacity the Cache should have
      */
@@ -45,7 +44,7 @@ public class LRUCacheWithPrioritiesAndExpiryTimestamps {
     private final TreeCache<Integer> prioritiesCache = new TreeCache<>("Priority");
     private final TreeCache<Long> expiryTimestampsCache = new TreeCache<>("ExpiryTimestamp");
 
-    // Time complexity: O(logn)
+    // Time complexity: O(1)
     public Integer get(String key) {
         NodesPair nodesPair;
         // O(1)
@@ -55,7 +54,7 @@ public class LRUCacheWithPrioritiesAndExpiryTimestamps {
             return null;
         }
 
-        // O(logn)
+        // O(1)
         moveToTheTopInBothTreeCaches(nodesPair);
         return nodesPair.getPriorityCacheNode().getElement().getValue();
     }

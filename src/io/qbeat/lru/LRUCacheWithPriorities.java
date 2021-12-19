@@ -10,7 +10,8 @@ public class LRUCacheWithPriorities {
 
     /**
      * An implementation of the Last Recently Used (LRU) Cache
-     * Both Set and Get methods require a constant time
+     * Get has timeComplexity O(n)
+     * Set has timeComplexity O(logn)
      * Does not support concurrency or expiry date.
      *
      * @param capacity The capacity the Cache should have
@@ -45,7 +46,7 @@ public class LRUCacheWithPriorities {
         cacheForPriority.moveToTheTop(node);
     }
 
-    // Time complexity: O(1)
+    // Time complexity: O(logn)
     public void set(String key, int value, int priority) {
         if (hashmapWithNodes.containsKey(key)) {
             moveToTheTop(key, value, priority);

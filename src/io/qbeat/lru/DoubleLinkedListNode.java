@@ -15,10 +15,6 @@ public class DoubleLinkedListNode<T> {
         return element;
     }
 
-    public void setElement(T element) {
-        this.element = element;
-    }
-
     public DoubleLinkedListNode<T> getNext() {
         return next;
     }
