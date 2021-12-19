@@ -46,20 +46,6 @@ public class DoubleLinkedList<T> {
         return size == 0;
     }
 
-    public DoubleLinkedListNode<T> putLast(T value) {
-        DoubleLinkedListNode<T> node = new DoubleLinkedListNode<>(value);
-        if (head == null) {
-            head = node;
-            tail = node;
-        } else {
-            tail.setNext(node);
-            node.setPrevious(tail);
-            tail = node;
-        }
-        size++;
-        return node;
-    }
-
     public T remove(DoubleLinkedListNode<T> node) {
         if (size == 1) {
             head = null;
